@@ -105,25 +105,11 @@ def showsearchmenu():
     Back.place(x = 0, y = 375)
     SearchButton = Button(searchmenu, text="Search",command=lambda:[hidesearchmenu(), FilterWrite(), ShowBookList()])
     SearchButton.place(x = 200, y = 200)
-    FiltersButton = Button(searchmenu, text="Filters",command=lambda:[hidesearchmenu(), ShowFilterSearch()])
-    FiltersButton.place(x = 200, y = 300)
     SearchEntry = Entry(searchmenu)
     SearchEntry.place(x = 200, y = 150)
 
 def FilterWrite():
     open("FilterSearch.txt",'w').writelines([ line for line in open("BookList.txt") if SearchEntry.get() in line])
-
-def ShowFilterSearch():
-    global filters
-    filters = Tk()
-    filters.deiconify()
-    filters.title("Filters")
-    filters.geometry("400x400")
-    Back = Button(filters, text="Back",command=lambda:[HideFilters(), showsearchmenu()])
-    Back.place(x = 0, y = 375)
-
-def HideFilters():
-    filters.withdraw()
 
 def ShowBookList():
     global booklist
@@ -160,6 +146,11 @@ def showborrowmenu():
     borrowmenu.geometry("400x400")
     Back = Button(borrowmenu, text="Back",command=lambda:[hideborrowmenu(), showmainmenu()])
     Back.place(x = 0, y = 375)
+    searchbooks = Text(borrowmenu, wrap=WORD, width=45, height= 20)
+    searchbooks.place(x=0, y=0)
+    with open("BorrowedBooks.txt", "r") as books:
+        searchbooks.insert(INSERT, books.read())
+        searchbooks.config(state=DISABLED)
 
 def hideborrowmenu():
     borrowmenu.withdraw()
