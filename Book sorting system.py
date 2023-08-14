@@ -5,6 +5,16 @@ def cleartext():
    usernameEntry.delete(0, END)
    passwordEntry.delete(0, END)
 
+def clearregistertext():
+    UsernameEntry.delete(0, END)
+    PasswordEntry.delete(0, END)
+
+def clearaddtext():
+    BookNameEntry.delete(0, END)
+    GenreEntry.delete(0, END)
+    AuthorEntry.delete(0, END)
+    IllistratorEntry.delete(0, END)  
+
 def validateLogin(username, password):
     print("username entered :", username.get())
     print("password entered :", password.get(), "\n")
@@ -27,6 +37,7 @@ def showmainmenu():
     mainmenu.title("Main Menu")
     mainmenu.geometry("400x400")
     mainmenu.resizable(width=False, height=False)
+    mainmenu.configure(bg="grey")
 
     LogoutButton = Button(mainmenu, text="Logout",command=lambda:[hidemainmenu(), showlogin()])
     LogoutButton.place(x=0, y=375)
@@ -53,6 +64,7 @@ def showregistermenu():
     Registermenu.title("Register")
     Registermenu.geometry("400x400")
     Registermenu.resizable(width=False, height=False)
+    Registermenu.configure(bg="grey")
     BackButton = Button(Registermenu, text="Back",command=lambda:[hideregistermenu(), showlogin()])
     BackButton.place(x=0, y=350)
 
@@ -66,7 +78,7 @@ def showregistermenu():
     passwordlabel = Label(Registermenu, text="Password")
     passwordlabel.place(x=170, y=210)
 
-    RegisterButton = Button(Registermenu, text="Register",command=lambda:[ReturnEntry(), registertofile()])
+    RegisterButton = Button(Registermenu, text="Register",command=lambda:[ReturnEntry(), registertofile(), clearregistertext()])
     RegisterButton.place(x=170, y=300)
 
 def ReturnEntry():
@@ -101,6 +113,7 @@ def showsearchmenu():
     searchmenu.title("Search")
     searchmenu.geometry("400x400")
     searchmenu.resizable(width=False, height=False)
+    searchmenu.configure(bg="grey")
     Back = Button(searchmenu, text="Back",command=lambda:[hidesearchmenu(), showmainmenu()])
     Back.place(x = 0, y = 375)
     SearchButton = Button(searchmenu, text="Search",command=lambda:[hidesearchmenu(), FilterWrite(), ShowBookList()])
@@ -108,23 +121,55 @@ def showsearchmenu():
     SearchEntry = Entry(searchmenu)
     SearchEntry.place(x = 200, y = 150)
 
+
 def FilterWrite():
     open("FilterSearch.txt",'w').writelines([ line for line in open("BookList.txt") if SearchEntry.get() in line])
 
 def ShowBookList():
     global booklist
+    global searchbooks
     booklist = Tk()
     booklist.deiconify()
     booklist.title("Booklist")
     booklist.geometry("400x400")
+    booklist.configure(bg="grey")
     booklist.resizable(width=False, height=False)
     Back = Button(booklist, text="Back",command=lambda:[hidebooklist(), showsearchmenu(), clearfiltersearch()])
     Back.place(x = 0, y = 375)
     searchbooks = Text(booklist, wrap=WORD, width=45, height= 20)
     searchbooks.place(x=0, y=0)
+    IndexEntry = Entry(booklist)
+    IndexEntry.place(x=300, y=300)
+    BorrowButton = Button(booklist, text="Borrow", command=lambda: BorrowBook(int(IndexEntry.get())))
+    BorrowButton.place(x=300, y=350)
     with open("FilterSearch.txt", "r") as books:
         searchbooks.insert(INSERT, books.read())
         searchbooks.config(state=DISABLED)
+
+def BorrowBook(index):
+    with open("FilterSearch.txt", "r") as filter_search_file:
+        filter_search_lines = filter_search_file.readlines()
+
+    with open("Booklist.txt", "r") as booklist_file:
+        booklist_lines = booklist_file.readlines()
+    if 1 <= index <= len(filter_search_lines):
+        borrowed_book = filter_search_lines.pop(index - 1)
+        with open("FilterSearch.txt", "w") as filter_search_file:
+            filter_search_file.writelines(filter_search_lines)
+
+        # Remove the book from the original book list as well
+        book_to_remove = booklist_lines.pop(index - 1)
+        with open("Booklist.txt", "w") as booklist_file:
+            booklist_file.writelines(booklist_lines)
+
+        with open("BorrowedBooks.txt", "a") as borrowed_file:
+            borrowed_file.write(borrowed_book)
+
+    # Refresh the displayed book list
+    searchbooks.config(state=NORMAL)
+    searchbooks.delete(1.0, END)
+    searchbooks.insert(INSERT, ''.join(filter_search_lines))
+    searchbooks.config(state=DISABLED)
     
 def clearfiltersearch():
     with open("FilterSearch.txt",'r+') as file:
@@ -139,18 +184,50 @@ def hidesearchmenu():
 
 def showborrowmenu():
     global borrowmenu
+    global searchbooks
     borrowmenu = Tk()
     borrowmenu.deiconify()
     borrowmenu.resizable(width=False, height=False)
     borrowmenu.title("Borrow")
     borrowmenu.geometry("400x400")
+    borrowmenu.configure(bg="grey")
     Back = Button(borrowmenu, text="Back",command=lambda:[hideborrowmenu(), showmainmenu()])
     Back.place(x = 0, y = 375)
     searchbooks = Text(borrowmenu, wrap=WORD, width=45, height= 20)
     searchbooks.place(x=0, y=0)
+    Return = Button(borrowmenu, text="Return", command=lambda:ReturnBook(int(IndexEntry.get())))
+    Return.place(x=300, y=350)
+    IndexEntry = Entry(borrowmenu)
+    IndexEntry.place(x=300, y=300)
     with open("BorrowedBooks.txt", "r") as books:
         searchbooks.insert(INSERT, books.read())
         searchbooks.config(state=DISABLED)
+
+def ReturnBook(index):
+    with open("BorrowedBooks.txt", "r") as filter_search_file:
+        filter_search_lines = filter_search_file.readlines()
+
+    with open("BorrowedBooks.txt", "r") as booklist_file:
+        booklist_lines = booklist_file.readlines()
+
+    if 1 <= index <= len(filter_search_lines):
+        borrowed_book = filter_search_lines.pop(index - 1)
+        with open("BorrowedBooks.txt", "w") as filter_search_file:
+            filter_search_file.writelines(filter_search_lines)
+
+        # Remove the book from the original book list as well
+        book_to_remove = booklist_lines.pop(index - 1)
+        with open("BorrowedBooks.txt", "w") as booklist_file:
+            booklist_file.writelines(booklist_lines)
+
+        with open("Booklist.txt", "a") as borrowed_file:
+            borrowed_file.write(borrowed_book)
+
+    # Refresh the displayed book list
+    searchbooks.config(state=NORMAL)
+    searchbooks.delete(1.0, END)
+    searchbooks.insert(INSERT, ''.join(filter_search_lines))
+    searchbooks.config(state=DISABLED)
 
 def hideborrowmenu():
     borrowmenu.withdraw()
@@ -167,6 +244,7 @@ def showaddmenu():
     addmenu.resizable(width=False, height=False)
     addmenu.title("Add")
     addmenu.geometry("400x400")
+    addmenu.configure(bg="grey")
     Back = Button(addmenu, text="Back",command=lambda:[hideaddmenu(), showmainmenu()])
     Back.place(x = 0, y = 375)
     
@@ -190,7 +268,7 @@ def showaddmenu():
     IllistratorLabel = Label(addmenu, text = "Illistrator")
     IllistratorLabel.place(x = 170, y = 175)
 
-    AddButton = Button(addmenu, text = "Add", command = lambda:[ReturnBookEntry(), AddBook(), BookAddedLabel()])
+    AddButton = Button(addmenu, text = "Add", command = lambda:[ReturnBookEntry(), AddBook(), BookAddedLabel(), clearaddtext()])
     AddButton.place(x = 170, y = 250)
 
 def BookAddedLabel():
@@ -217,12 +295,49 @@ def hideaddmenu():
 
 def showdeletemenu():
     global deletemenu
+    global searchbooks
     deletemenu = Tk()
     deletemenu.deiconify()
     deletemenu.title("Delete")
     deletemenu.resizable(width=False, height=False)
     deletemenu.geometry("400x400")
-    Back = Button(deletemenu, text="Back",command=lambda:[hidedeletemenu(), showmainmenu()]).grid(row=4, column=0)
+    deletemenu.configure(bg="grey")
+    searchbooks = Text(deletemenu, wrap=WORD, width=45, height= 20)
+    searchbooks.place(x=0, y=0)
+    with open("BookList.txt", "r") as books:
+        searchbooks.insert(INSERT, books.read())
+        searchbooks.config(state=DISABLED)
+    
+    IndexEntry = Entry(deletemenu)
+    IndexEntry.place(x=300, y=300)
+
+    Back = Button(deletemenu, text="Back",command=lambda:[hidedeletemenu(), showmainmenu()])
+    Back.place(x = 0, y = 375)
+    Delete = Button(deletemenu, text="Delete", command=lambda:DeleteBook(int(IndexEntry.get())))
+    Delete.place(x=300, y=350)
+
+def DeleteBook(index):
+    with open("BookList.txt", "r") as filter_search_file:
+        filter_search_lines = filter_search_file.readlines()
+
+    with open("BookList.txt", "r") as booklist_file:
+        booklist_lines = booklist_file.readlines()
+
+    if 1 <= index <= len(filter_search_lines):
+        borrowed_book = filter_search_lines.pop(index - 1)
+        with open("BookList.txt", "w") as filter_search_file:
+            filter_search_file.writelines(filter_search_lines)
+
+        # Remove the book from the original book list as well
+        book_to_remove = booklist_lines.pop(index - 1)
+        with open("BookList.txt", "w") as booklist_file:
+            booklist_file.writelines(booklist_lines)
+
+    # Refresh the displayed book list
+    searchbooks.config(state=NORMAL)
+    searchbooks.delete(1.0, END)
+    searchbooks.insert(INSERT, ''.join(filter_search_lines))
+    searchbooks.config(state=DISABLED)
 
 def hidedeletemenu():
     deletemenu.withdraw()
