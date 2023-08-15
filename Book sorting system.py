@@ -78,8 +78,28 @@ def showregistermenu():
     passwordlabel = Label(Registermenu, text="Password")
     passwordlabel.place(x=170, y=210)
 
-    RegisterButton = Button(Registermenu, text="Register",command=lambda:[ReturnEntry(), registertofile(), clearregistertext()])
+    RegisterButton = Button(Registermenu, text="Register",command=lambda:[ConfirmRegister(), ReturnEntry(), registertofile(), clearregistertext(), hideregistermenu()])
     RegisterButton.place(x=170, y=300)
+
+def ConfirmRegister():
+    global ConfirmReg
+
+    ConfirmReg = Tk()
+    ConfirmReg.deiconify()
+    ConfirmReg.title("Register Complete")
+    ConfirmReg.geometry("200x200")
+    ConfirmReg.resizable(width=False, height=False)
+    ConfirmReg.configure(bg="grey")
+
+    ConfirmLabel = Label(ConfirmReg, text="Account Registered")
+    ConfirmLabel.place(x=80, y=80)
+
+    ConfirmButton = Button(ConfirmReg, text="Ok", command=lambda:[HideConfirmRegister(), showregistermenu()])
+    ConfirmButton.place(x=80, y=125)
+
+def HideConfirmRegister():
+    ConfirmReg.withdraw()
+
 
 def ReturnEntry():
     return UsernameEntry
@@ -296,6 +316,8 @@ def hideaddmenu():
 def showdeletemenu():
     global deletemenu
     global searchbooks
+    global IndexEntry
+
     deletemenu = Tk()
     deletemenu.deiconify()
     deletemenu.title("Delete")
@@ -313,8 +335,29 @@ def showdeletemenu():
 
     Back = Button(deletemenu, text="Back",command=lambda:[hidedeletemenu(), showmainmenu()])
     Back.place(x = 0, y = 375)
-    Delete = Button(deletemenu, text="Delete", command=lambda:DeleteBook(int(IndexEntry.get())))
+    Delete = Button(deletemenu, text="Delete", command=lambda:[ConfirmDelete(), hidedeletemenu()])
     Delete.place(x=300, y=350)
+
+def ConfirmDelete():
+    global ConfirmDelete
+
+    ConfirmDelete = Tk()
+    ConfirmDelete.deiconify()
+    ConfirmDelete.title("Delete Confirmation")
+    ConfirmDelete.geometry("200x200")
+    ConfirmDelete.resizable(width=False, height=False)
+    ConfirmDelete.configure(bg="grey")
+
+    ConfirmLabel = Label(ConfirmDelete, text="Are you Sure?")
+    ConfirmLabel.place(x=80, y=80)
+
+    YesButton = Button(ConfirmDelete, text="Yes", command=lambda:[DeleteBook(int(IndexEntry.get())), HideConfirmDelete(), showdeletemenu()])
+    YesButton.place(x=80, y=125)
+    NoButton = Button(ConfirmDelete, text="No", command=lambda:[HideConfirmDelete(), showdeletemenu()])
+    NoButton.place(x=40, y=125)
+
+def HideConfirmDelete():
+    ConfirmDelete.withdraw()
 
 def DeleteBook(index):
     with open("BookList.txt", "r") as filter_search_file:
