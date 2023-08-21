@@ -28,6 +28,7 @@ def validateLogin(username, password):
             print("Login Sucessful")
             showmainmenu()
             hidelogin()
+            break
         else:
             notfound = True
         
