@@ -19,6 +19,8 @@ def validateLogin(username, password):
     print("username entered :", username.get())
     print("password entered :", password.get(), "\n")
 
+    notfound = False
+
     for line in open("Login.txt", "r").readlines():
 
         login_info = line.split()
@@ -27,8 +29,28 @@ def validateLogin(username, password):
             showmainmenu()
             hidelogin()
         else:
-            LoginFailLabel = Label(LoginPage, text="Username or password Incorrect")
-            LoginFailLabel.place(x = 330, y = 400)
+            notfound = True
+        
+    if notfound:
+        hidelogin()
+        LoginFails()
+
+def LoginFails():
+    global LoginFail
+
+    LoginFail = Tk()
+    LoginFail.deiconify()
+    LoginFail.title("Register Failure")
+    LoginFail.geometry("200x200")
+    LoginFail.resizable(width=False, height=False)
+    LoginFail.configure(bg="grey")
+    LoginFailLabel = Label(LoginFail, text="Login Not Found")
+    LoginFailLabel.place(x=80, y=80)
+    LoginFailButton = Button(LoginFail, text="Ok", command=lambda:[HideLoginFail(), showlogin()])
+    LoginFailButton.place(x=80, y=125)
+
+def HideLoginFail():
+    LoginFail.withdraw()
 
 def showmainmenu():
     global mainmenu
@@ -39,20 +61,20 @@ def showmainmenu():
     mainmenu.resizable(width=False, height=False)
     mainmenu.configure(bg="grey")
 
-    LogoutButton = Button(mainmenu, text="Logout",command=lambda:[hidemainmenu(), showlogin()])
-    LogoutButton.place(x=0, y=375)
+    LogoutButton = Button(mainmenu, text="Logout",command=lambda:[hidemainmenu(), showlogin()], width=15, height=1)
+    LogoutButton.place(x=140, y=360)
 
-    SearchButton = Button(mainmenu, text="Search",command=lambda:[hidemainmenu(), showsearchmenu()])
+    SearchButton = Button(mainmenu, text="Search",command=lambda:[hidemainmenu(), showsearchmenu()], width=15, height=3)
     SearchButton.place(x = 140, y = 50)
 
-    BorrowButton = Button(mainmenu, text="Borrow",command=lambda:[hidemainmenu(), showborrowmenu()])
-    BorrowButton.place(x = 140, y = 100)
+    BorrowButton = Button(mainmenu, text="Borrow",command=lambda:[hidemainmenu(), showborrowmenu()], width=15, height=3)
+    BorrowButton.place(x = 140, y = 120)
 
-    AddButton = Button(mainmenu, text="Add",command=lambda:[hidemainmenu(), showaddmenu()])
-    AddButton.place(x = 140, y = 150)
+    AddButton = Button(mainmenu, text="Add",command=lambda:[hidemainmenu(), showaddmenu()], width=15, height=3)
+    AddButton.place(x = 140, y = 190)
 
-    DeleteButton = Button(mainmenu, text="Delete",command=lambda:[hidemainmenu(), showdeletemenu()])
-    DeleteButton.place(x = 140, y = 200)
+    DeleteButton = Button(mainmenu, text="Delete",command=lambda:[hidemainmenu(), showdeletemenu()], width=15, height=3)
+    DeleteButton.place(x = 140, y = 260)
 
 def showregistermenu():
     global Registermenu
@@ -69,36 +91,58 @@ def showregistermenu():
     BackButton.place(x=0, y=350)
 
     UsernameEntry = Entry(Registermenu)
-    UsernameEntry.place(x=140, y=150)
+    UsernameEntry.place(x=140, y=185)
     usernamelabel = Label(Registermenu, text="Username")
-    usernamelabel.place(x=170, y=160)
+    usernamelabel.place(x=170, y=200)
 
     PasswordEntry = Entry(Registermenu)
-    PasswordEntry.place(x=140, y=200)
+    PasswordEntry.place(x=140, y=245)
     passwordlabel = Label(Registermenu, text="Password")
-    passwordlabel.place(x=170, y=210)
+    passwordlabel.place(x=170, y=260)
 
-    RegisterButton = Button(Registermenu, text="Register",command=lambda:[ConfirmRegister(), ReturnEntry(), registertofile(), clearregistertext(), hideregistermenu()])
-    RegisterButton.place(x=170, y=300)
+    RegisterButton = Button(Registermenu, text="Register",command=lambda:[ConfirmRegister(), hideregistermenu()])
+    RegisterButton.place(x=173, y=300)
 
 def ConfirmRegister():
     global ConfirmReg
+    global RegisterFail
+    username = UsernameEntry.get()
+    password = PasswordEntry.get()
+    found = False
 
-    ConfirmReg = Tk()
-    ConfirmReg.deiconify()
-    ConfirmReg.title("Register Complete")
-    ConfirmReg.geometry("200x200")
-    ConfirmReg.resizable(width=False, height=False)
-    ConfirmReg.configure(bg="grey")
-
-    ConfirmLabel = Label(ConfirmReg, text="Account Registered")
-    ConfirmLabel.place(x=80, y=80)
-
-    ConfirmButton = Button(ConfirmReg, text="Ok", command=lambda:[HideConfirmRegister(), showregistermenu()])
-    ConfirmButton.place(x=80, y=125)
+    with open("Login.txt", "r") as file:
+        for line in file.readlines():
+            login_info = line.strip().split()
+            if username == login_info[0] or password == login_info[1]:
+                found = True
+                break
+   
+    if found:
+        RegisterFail = Tk()
+        RegisterFail.title("Register Failure")
+        RegisterFail.geometry("200x200")
+        RegisterFail.resizable(width=False, height=False)
+        RegisterFail.configure(bg="grey")
+        RegFailLabel = Label(RegisterFail, text="Username or password already in use")
+        RegFailLabel.place(x=80, y=80)
+        RegFailButton = Button(RegisterFail, text="Ok", command=lambda:[HideRegFail(), showregistermenu()])
+        RegFailButton.place(x=80, y=125)
+    else:
+        ConfirmReg = Tk()
+        ConfirmReg.title("Register Complete")
+        ConfirmReg.geometry("200x200")
+        ConfirmReg.resizable(width=False, height=False)
+        ConfirmReg.configure(bg="grey")
+        ConfirmLabel = Label(ConfirmReg, text="Account Registered")
+        ConfirmLabel.place(x=80, y=80)
+        ConfirmButton = Button(ConfirmReg, text="Ok", command=lambda:[HideConfirmRegister(), showregistermenu(), registertofile(), ReturnEntry(), clearregistertext()])
+        ConfirmButton.place(x=80, y=125)
 
 def HideConfirmRegister():
     ConfirmReg.withdraw()
+
+def HideRegFail():
+    RegisterFail.withdraw()
 
 
 def ReturnEntry():
