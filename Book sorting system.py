@@ -68,7 +68,7 @@ def showmainmenu():
     SearchButton = Button(mainmenu, text="Search",command=lambda:[hidemainmenu(), showsearchmenu()], width=15, height=3)
     SearchButton.place(x = 140, y = 50)
 
-    BorrowButton = Button(mainmenu, text="Borrow",command=lambda:[hidemainmenu(), showborrowmenu()], width=15, height=3)
+    BorrowButton = Button(mainmenu, text="Borrowed",command=lambda:[hidemainmenu(), showborrowmenu()], width=15, height=3)
     BorrowButton.place(x = 140, y = 120)
 
     AddButton = Button(mainmenu, text="Add",command=lambda:[hidemainmenu(), showaddmenu()], width=15, height=3)
@@ -375,7 +375,7 @@ def showdeletemenu():
     deletemenu.resizable(width=False, height=False)
     deletemenu.geometry("600x800")
     deletemenu.configure(bg="grey")
-    searchbooks = Text(deletemenu, wrap=WORD, width=80, height= 25)
+    searchbooks = Text(deletemenu, wrap=WORD, width=70, height= 25)
     searchbooks.place(x=0, y=0)
     with open("BookList.txt", "r") as books:
         searchbooks.insert(INSERT, books.read())
