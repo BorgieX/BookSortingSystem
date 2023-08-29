@@ -1,14 +1,6 @@
 from tkinter import *
 from functools import partial
 
-def cleartext():
-   usernameEntry.delete(0, END)
-   passwordEntry.delete(0, END)
-
-def clearregistertext():
-    UsernameEntry.delete(0, END)
-    PasswordEntry.delete(0, END)
-
 def clearaddtext():
     BookNameEntry.delete(0, END)
     GenreEntry.delete(0, END)
@@ -28,9 +20,11 @@ def validateLogin(username, password):
             print("Login Sucessful")
             showmainmenu()
             hidelogin()
+            notfound = False
             break
         else:
             notfound = True
+            
         
     if notfound:
         hidelogin()
@@ -79,8 +73,8 @@ def showmainmenu():
 
 def showregistermenu():
     global Registermenu
-    global UsernameEntry
-    global PasswordEntry
+    global UserEntry
+    global PassEntry
 
     Registermenu = Tk()
     Registermenu.deiconify()
@@ -91,13 +85,13 @@ def showregistermenu():
     BackButton = Button(Registermenu, text="Back",command=lambda:[hideregistermenu(), showlogin()])
     BackButton.place(x=0, y=350)
 
-    UsernameEntry = Entry(Registermenu, width=50)
-    UsernameEntry.place(x=50, y=185)
+    UserEntry = Entry(Registermenu, width=50)
+    UserEntry.place(x=50, y=185)
     usernamelabel = Label(Registermenu, text="Username")
     usernamelabel.place(x=170, y=200)
 
-    PasswordEntry = Entry(Registermenu, width=50)
-    PasswordEntry.place(x=50, y=245)
+    PassEntry = Entry(Registermenu, width=50)
+    PassEntry.place(x=50, y=245)
     passwordlabel = Label(Registermenu, text="Password")
     passwordlabel.place(x=170, y=260)
 
@@ -107,8 +101,8 @@ def showregistermenu():
 def ConfirmRegister():
     global ConfirmReg
     global RegisterFail
-    username = UsernameEntry.get()
-    password = PasswordEntry.get()
+    username = UserEntry.get()
+    password = PassEntry.get()
     found = False
 
     with open("Login.txt", "r") as file:
@@ -121,7 +115,7 @@ def ConfirmRegister():
     if found:
         RegisterFail = Tk()
         RegisterFail.title("Register Failure")
-        RegisterFail.geometry("200x200")
+        RegisterFail.geometry("300x300")
         RegisterFail.resizable(width=False, height=False)
         RegisterFail.configure(bg="grey")
         RegFailLabel = Label(RegisterFail, text="Username or password already in use")
@@ -131,12 +125,12 @@ def ConfirmRegister():
     else:
         ConfirmReg = Tk()
         ConfirmReg.title("Register Complete")
-        ConfirmReg.geometry("200x200")
+        ConfirmReg.geometry("300x300")
         ConfirmReg.resizable(width=False, height=False)
         ConfirmReg.configure(bg="grey")
         ConfirmLabel = Label(ConfirmReg, text="Account Registered")
         ConfirmLabel.place(x=80, y=80)
-        ConfirmButton = Button(ConfirmReg, text="Ok", command=lambda:[HideConfirmRegister(), showregistermenu(), registertofile(), ReturnEntry(), clearregistertext()])
+        ConfirmButton = Button(ConfirmReg, text="Ok", command=lambda:[ReturnEntry(), registertofile(), HideConfirmRegister(), showregistermenu(), clearregistertext()])
         ConfirmButton.place(x=80, y=125)
 
 def HideConfirmRegister():
@@ -145,18 +139,25 @@ def HideConfirmRegister():
 def HideRegFail():
     RegisterFail.withdraw()
 
-
 def ReturnEntry():
-    return UsernameEntry
-    return PasswordEntry
+    return UserEntry
+    return PassEntry
 
 def registertofile():
     LoginFile=open("Login.txt", "a")
-    LoginFile.write(UsernameEntry.get())
-    LoginFile.write(" ")
-    LoginFile.write(PasswordEntry.get())
     LoginFile.write("\n")
+    LoginFile.write(UserEntry.get())
+    LoginFile.write(" ")
+    LoginFile.write(PassEntry.get())
     LoginFile.close()
+
+def cleartext():
+    usernameEntry.delete(0, END)
+    passwordEntry.delete(0, END)
+
+def clearregistertext():
+    UserEntry.delete(0, END)
+    PassEntry.delete(0, END)
 
 def hideregistermenu():
     Registermenu.withdraw()
