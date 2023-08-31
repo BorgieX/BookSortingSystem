@@ -75,6 +75,7 @@ def showregistermenu():
     global Registermenu
     global UserEntry
     global PassEntry
+    global ConfirmPassEntry
 
     Registermenu = Tk()
     Registermenu.deiconify()
@@ -86,14 +87,19 @@ def showregistermenu():
     BackButton.place(x=0, y=350)
 
     UserEntry = Entry(Registermenu, width=50)
-    UserEntry.place(x=50, y=185)
+    UserEntry.place(x=50, y=125)
     usernamelabel = Label(Registermenu, text="Username")
-    usernamelabel.place(x=170, y=200)
+    usernamelabel.place(x=170, y=140)
 
     PassEntry = Entry(Registermenu, width=50)
-    PassEntry.place(x=50, y=245)
+    PassEntry.place(x=50, y=185)
     passwordlabel = Label(Registermenu, text="Password")
-    passwordlabel.place(x=170, y=260)
+    passwordlabel.place(x=170, y=200)
+    
+    ConfirmPassEntry = Entry(Registermenu, width=50)
+    ConfirmPassEntry.place(x=50, y=245)
+    ConfirmPassLabel = Label(Registermenu, text="Confirm Password")
+    ConfirmPassLabel.place(x=150, y=260)
 
     RegisterButton = Button(Registermenu, text="Register",command=lambda:[ConfirmRegister(), hideregistermenu()])
     RegisterButton.place(x=173, y=300)
@@ -101,8 +107,10 @@ def showregistermenu():
 def ConfirmRegister():
     global ConfirmReg
     global RegisterFail
+    global PassDontMatch
     username = UserEntry.get()
     password = PassEntry.get()
+    confirmpassword = ConfirmPassEntry.get()
     found = False
 
     with open("Login.txt", "r") as file:
@@ -123,18 +131,33 @@ def ConfirmRegister():
         RegFailButton = Button(RegisterFail, text="Ok", command=lambda:[HideRegFail(), showregistermenu()])
         RegFailButton.place(x=80, y=125)
     else:
-        ConfirmReg = Tk()
-        ConfirmReg.title("Register Complete")
-        ConfirmReg.geometry("300x300")
-        ConfirmReg.resizable(width=False, height=False)
-        ConfirmReg.configure(bg="grey")
-        ConfirmLabel = Label(ConfirmReg, text="Account Registered")
-        ConfirmLabel.place(x=80, y=80)
-        ConfirmButton = Button(ConfirmReg, text="Ok", command=lambda:[ReturnEntry(), registertofile(), HideConfirmRegister(), showregistermenu(), clearregistertext()])
-        ConfirmButton.place(x=80, y=125)
+        if password == confirmpassword:
+            ConfirmReg = Tk()
+            ConfirmReg.title("Register Complete")
+            ConfirmReg.geometry("300x300")
+            ConfirmReg.resizable(width=False, height=False)
+            ConfirmReg.configure(bg="grey")
+            ConfirmLabel = Label(ConfirmReg, text="Account Registered")
+            ConfirmLabel.place(x=80, y=80)
+            ConfirmButton = Button(ConfirmReg, text="Ok", command=lambda:[ReturnEntry(), registertofile(), HideConfirmRegister(), showregistermenu(), clearregistertext()])
+            ConfirmButton.place(x=80, y=125)
+        else:
+            PassDontMatch = Tk()
+            PassDontMatch.title("Passwords Dont Match")
+            PassDontMatch.geometry("300x300")
+            PassDontMatch.resizable(width=False, height=False)
+            PassDontMatch.configure(bg="grey")
+            PassDontMatchLabel = Label(PassDontMatch, text="Passwords Dont Match")
+            PassDontMatchLabel.place(x=80, y=80)
+            PassDontMatchButton = Button(PassDontMatch, text="Ok", command=lambda:[clearregistertext(), showregistermenu(), HidePassDontMatch()])
+            PassDontMatchButton.place(x=80, y=125)
 
 def HideConfirmRegister():
     ConfirmReg.withdraw()
+
+def HidePassDontMatch():
+    PassDontMatch.withdraw()
+
 
 def HideRegFail():
     RegisterFail.withdraw()
@@ -337,7 +360,7 @@ def showaddmenu():
 
     IllistratorEntry = Entry(addmenu)
     IllistratorEntry.place(x = 140, y = 200)
-    IllistratorLabel = Label(addmenu, text = "Illistrator")
+    IllistratorLabel = Label(addmenu, text = "Illustrator")
     IllistratorLabel.place(x = 170, y = 175)
 
     AddButton = Button(addmenu, text = "Add", command = lambda:[ReturnBookEntry(), AddBook(), BookAddedLabel(), clearaddtext()])
